@@ -1,0 +1,88 @@
+@use 'base' as *;
+@use 'fonts' as *;
+
+#rbr-container-element-volume,
+.unicorn_cart_cell:has(.items_bulk_discounts__8WDn-) {
+	display: none;
+}
+
+.au-002-price {
+	display: flex;
+	gap: 8px;
+	&__strikethrough-price {
+		color: #636363;
+		text-decoration: line-through;
+	}
+	&__discountPct-label {
+		color: #fff;
+		font-size: 12px;
+		background-color: #f60113;
+		border-radius: 8px;
+		padding: 4px;
+		height: fit-content;
+		align-self: center;
+	}
+}
+
+.items_prices__kPZpv {
+	flex-direction: column;
+	span:nth-child(1),
+	span:nth-child(2) {
+		display: none;
+	}
+	.au-002-cart-price__strikethrough {
+		text-decoration: line-through;
+	}
+	&::after {
+		display: block;
+		content: '11% OFF';
+		color: #fff;
+		font-size: 12px;
+		background-color: #f60113;
+		border-radius: 8px;
+		padding: 4px;
+		font-weight: 600;
+	}
+}
+.unicorn_cart_cell {
+	.unicorn_discount_tag {
+		display: none;
+	}
+}
+
+#au-002-cart-breakdown {
+	width: 100%;
+	padding: 12px 0;
+	border-bottom: 1px solid #e5e5e5;
+	margin-bottom: 8px;
+}
+
+.au-002-bd__row {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 4px 0;
+	font-size: 14px;
+
+	&--discount {
+		color: #27ae60;
+	}
+
+	&--total {
+		font-weight: 700;
+		font-size: 15px;
+		border-top: 1px solid #e5e5e5;
+		margin-top: 6px;
+		padding-top: 10px;
+	}
+}
+
+#unicorn_checkout_submit {
+	.unicorn_cart_checkout_button_text {
+		font-size: 0;
+		&::after {
+			content: 'Checkout';
+			font-size: 16px;
+		}
+	}
+}
