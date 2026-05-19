@@ -1,0 +1,488 @@
+
+					/**
+Test name: SR AU003 Buy More Save More Format AU - V1
+Developed by: Riah Amhari
+**/
+
+'use strict';
+
+(async () => {
+  try {
+
+var createHTMLElement = (tag, options = {}) => {
+  const element = document.createElement(tag);
+  const { className, text, attributes, style, events, html } = options;
+  if (className) {
+    if (Array.isArray(className)) {
+      element.classList.add(...className.filter(Boolean));
+    } else {
+      element.className = className;
+    }
+  }
+  if (text) {
+    element.textContent = text;
+  }
+  if (html) {
+    element.innerHTML = html;
+  }
+  if (attributes) {
+    Object.entries(attributes).forEach(([key, value]) => {
+      if (value != null) {
+        element.setAttribute(key, String(value));
+      }
+    });
+  }
+  if (style) {
+    if (typeof style === "string") {
+      element.style.cssText = style;
+    } else {
+      Object.assign(element.style, style);
+    }
+  }
+  if (events) {
+    Object.entries(events).forEach(([event, handler]) => {
+      element.addEventListener(event, handler);
+    });
+  }
+  return element;
+};
+var queryShadowDom = (root, sel) => {
+  const [h, ...rest] = sel.split("::");
+  const hosts = root.querySelectorAll(h.trim());
+  if (hosts.length === 0) return [];
+  const remainingSelector = rest.join("::");
+  if (remainingSelector === "") {
+    return Array.from(hosts).map((host) => host.shadowRoot).filter((shadowRoot) => shadowRoot !== null);
+  }
+  const results = [];
+  for (const host of hosts) {
+    if (host.shadowRoot) {
+      results.push(...queryAll(host.shadowRoot, remainingSelector));
+    }
+  }
+  return results;
+};
+var queryAll = (root, sel) => sel.includes("::") ? queryShadowDom(root, sel) : [...root.querySelectorAll(sel)];
+var queryWithAlternative = (root, selectors) => {
+  for (const selector of selectors) {
+    const result2 = queryAll(root, selector);
+    if (result2.length > 0) return result2;
+  }
+  return [];
+};
+
+var watchers = window.__responseWatchers ??= /* @__PURE__ */ new Map();
+
+var waitForSelectors = (selectors, options = {}) => {
+  const { forceArray = false } = options;
+  let cache = [];
+  return {
+    name: "selectors",
+    check: () => {
+      cache = selectors?.map((s) => {
+        const selectorArray = Array.isArray(s) ? s : [s];
+        return queryWithAlternative(document, selectorArray);
+      });
+      return cache?.every((arr) => arr.length > 0);
+    },
+    get: () => ({
+      elements: cache.map((arr) => forceArray ? arr : arr.length === 1 ? arr[0] : arr)
+    })
+  };
+};
+
+var waitForAll = (...args) => {
+  const lastArg = args.at(-1);
+  const isOptions = lastArg && !("check" in lastArg);
+  const sources = isOptions ? args.slice(0, -1) : args;
+  const { timeout = 1e4, interval = 16, onUpdate } = isOptions ? lastArg : {};
+  const startTime = Date.now();
+  let prevHash = "";
+  const poll = () => {
+    const allReady = sources.every((s) => s.check());
+    const payload = Object.assign(
+      {},
+      ...sources.map((s) => {
+        try {
+          return s.get();
+        } catch {
+          return {};
+        }
+      })
+    );
+    if (onUpdate) {
+      const currentHash = JSON.stringify(payload);
+      if (currentHash !== prevHash) {
+        onUpdate(payload);
+        prevHash = currentHash;
+      }
+    }
+    if (allReady) return Promise.resolve(payload);
+    if (Date.now() - startTime > timeout) {
+      const notReady = sources.filter((s) => !s.check()).map((s) => s.name || "unknown");
+      return Promise.reject(new Error(`Timeout after ${timeout}ms: ${notReady.join(", ")}`));
+    }
+    return new Promise((resolve) => setTimeout(() => resolve(poll()), interval));
+  };
+  return poll();
+};
+
+var COPY = {
+  bnsm: "Buy 2, Save 5%\u30FBBuy 3+ Save 10%"
+};
+var pctIcon = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" fill="#39814f" height="16" width="16" version="1.1" id="Layer_1" viewBox="0 0 512.002 512.002" xml:space="preserve" stroke="#39814f">
+
+<g id="SVGRepo_bgCarrier" stroke-width="0"/>
+
+<g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"/>
+
+<g id="SVGRepo_iconCarrier"> <g> <g> <path d="M334.64,333.297c0.001-0.006,0.001-0.006-0.01-0.011c-3.143-3.154-7.342-4.89-11.802-4.89 c-4.46,0-8.658,1.735-11.802,4.89c-3.165,3.165-4.905,7.358-4.905,11.817c0,4.46,1.741,8.653,4.895,11.807 c6.309,6.331,17.328,6.32,23.614,0.011c3.165-3.165,4.905-7.358,4.905-11.818C339.535,340.645,337.794,336.451,334.64,333.297z"/> </g> </g> <g> <g> <path d="M212.122,144.112c0-0.006,0-0.006-0.011-0.011c-3.143-3.154-7.342-4.89-11.802-4.89c-4.46,0-8.658,1.735-11.802,4.89 c-3.165,3.165-4.905,7.358-4.905,11.817c0,4.465,1.741,8.658,4.895,11.818c6.309,6.31,17.316,6.31,23.625,0.001 c3.154-3.16,4.895-7.353,4.895-11.818C217.018,151.46,215.277,147.267,212.122,144.112z"/> </g> </g> <g> <g> <path d="M437.108,74.898c-99.869-99.858-262.345-99.858-362.214,0c-99.858,99.858-99.858,262.339,0,362.203 c49.934,49.929,115.521,74.896,181.107,74.896s131.173-24.967,181.107-74.896C536.966,337.243,536.966,174.762,437.108,74.898z M164.873,120.477c9.452-9.463,22.048-14.679,35.437-14.679s25.985,5.216,35.448,14.689c9.463,9.463,14.673,22.048,14.673,35.432 c0,13.389-5.21,25.974-14.684,35.442c-9.463,9.468-22.048,14.679-35.437,14.679s-25.974-5.21-35.437-14.679 c-9.474-9.469-14.684-22.053-14.684-35.442S155.399,129.946,164.873,120.477z M173.303,362.322 c-3.263,3.263-7.538,4.895-11.812,4.895s-8.55-1.632-11.812-4.895c-6.528-6.52-6.528-17.104-0.001-23.624l189.021-189.021 c6.526-6.526,17.099-6.526,23.625,0c6.526,6.52,6.526,17.104,0,23.625L173.303,362.322z M358.266,380.547 c-9.452,9.463-22.048,14.679-35.437,14.679c-13.389,0-25.985-5.216-35.448-14.689c-9.463-9.457-14.673-22.042-14.673-35.432 s5.21-25.974,14.684-35.442c9.452-9.463,22.048-14.679,35.437-14.679c13.389,0,25.985,5.216,35.448,14.689 c9.463,9.463,14.673,22.048,14.673,35.432C372.95,358.493,367.74,371.078,358.266,380.547z"/> </g> </g> </g>
+
+</svg>`;
+
+var init = (variantSelects2) => {
+  document.body.classList.add("sr_au003");
+  const greenPdpBar = createHTMLElement("div", {
+    className: "au003_pdp_bar",
+    html: `<p>${pctIcon}${COPY.bnsm}</p>`
+  });
+  variantSelects2.after(greenPdpBar);
+};
+var BREAKDOWN_ID = "au-002-cart-breakdown";
+var BMSM_BAR_ID = "au003-bmsm-bar";
+var getBmsmBarState = (discountPct) => {
+  const pct = discountPct ? parseInt(/(\d+)/.exec(discountPct)?.[1] ?? "0") : 0;
+  if (pct >= 10) return { step: 3, fillPct: 100, text: "You're saving the most!", badge: "Saving 10%" };
+  if (pct >= 5) return { step: 2, fillPct: 50, text: "Add 1 more rack to save 10%", badge: "Saving 5%" };
+  return { step: 1, fillPct: 0, text: "Add 1 more to save 5%", badge: "" };
+};
+var applyCartChanges = (targetNode) => {
+  const freeShippingUnlockTxt = targetNode.querySelector(".unicorn_cart_unlock span strong");
+  const checkoutBtnTxt = targetNode.querySelector(".unicorn_cart_checkout_button_text");
+  const priceContainer = targetNode.querySelector(".items_prices__kPZpv");
+  const cartFooter = targetNode.querySelector(".unicorn_cart_footer .unicorn_cart_block");
+  const price = targetNode?.querySelector(
+    ".items_prices__kPZpv > span:not(.au-002-cart-price__strikethrough):not(.au-002-cart-price__discountPrice):nth-child(1)"
+  );
+  if (!freeShippingUnlockTxt || !checkoutBtnTxt || !priceContainer || !cartFooter || !price) {
+    targetNode.querySelector(`#${BMSM_BAR_ID}`)?.remove();
+    return false;
+  }
+  const discountedPrice = document.querySelector(
+    ".items_prices__kPZpv > span:not(.au-002-cart-price__strikethrough):not(.au-002-cart-price__discountPrice):nth-child(2)"
+  );
+  const discountPct = targetNode.querySelector(".items_discount_tag__eVCmt span span")?.textContent;
+  const priceVal = parseAmount(price.textContent);
+  const discountedPriceVal = discountedPrice ? parseAmount(discountedPrice.textContent) : null;
+  const cartBreakdown = cartFooter.querySelector(`#${BREAKDOWN_ID}`);
+  if (cartBreakdown) {
+    cartBreakdown.querySelector(".au-002-bd__subtotal-val").textContent = price.textContent;
+    let discountRow = cartBreakdown.querySelector(".au-002-bd__row--discount");
+    if (discountedPrice) {
+      if (!discountRow) {
+        discountRow = document.createElement("div");
+        discountRow.className = "au-002-bd__row au-002-bd__row--discount";
+        discountRow.innerHTML = `<span class="au-002-bd__label">Buy More Save More (<span>${discountPct}</span>)</span><span class="au-002-bd__discount-val"></span>`;
+        cartBreakdown.querySelector(".au-002-bd__row--subtotal").after(discountRow);
+      }
+      discountRow.style.display = "";
+      discountRow.querySelector(".au-002-bd__discount-val").textContent = `-$${(priceVal - discountedPriceVal).toFixed(2)}`;
+      discountRow.querySelector(".au-002-bd__label span").textContent = discountPct;
+    } else if (discountRow) {
+      discountRow.style.display = "none";
+    }
+    cartBreakdown.querySelector(".au-002-bd__total-val").textContent = `$${discountedPrice ? discountedPriceVal : priceVal}`;
+    const discountPriceOffEl = cartBreakdown.querySelector(".au-002-bd__label span");
+    if (discountPriceOffEl) discountPriceOffEl.textContent = `${discountPct}`;
+  } else {
+    const breakdown = document.createElement("div");
+    breakdown.id = BREAKDOWN_ID;
+    breakdown.innerHTML = `
+			<div class="au-002-bd__row au-002-bd__row--subtotal">
+				<span class="au-002-bd__label">Subtotal</span>
+				<span class="au-002-bd__subtotal-val">${price.textContent}</span>
+			</div>
+            ${discountedPrice ? `	<div class="au-002-bd__row au-002-bd__row--discount">
+				<span class="au-002-bd__label">Buy More Save More (<span>${discountPct}</span>)</span>
+				<span class="au-002-bd__discount-val">-$${(priceVal - discountedPriceVal).toFixed(2)}</span>
+			</div>` : ``}
+		
+			<div class="au-002-bd__row au-002-bd__row--total">
+				<span class="au-002-bd__label">Total</span>
+				<span class="au-002-bd__total-val">$${discountedPrice ? discountedPriceVal : priceVal}</span>
+			</div>
+		`;
+    cartFooter.prepend(breakdown);
+  }
+  const { step, fillPct, text, badge } = getBmsmBarState(discountPct);
+  const dotClass = (i) => i < step ? "au003-bmsm__dot au003-bmsm__dot--passed" : i === step ? "au003-bmsm__dot au003-bmsm__dot--active" : "au003-bmsm__dot";
+  const existingBmsmBar = targetNode.querySelector(`#${BMSM_BAR_ID}`);
+  if (existingBmsmBar) {
+    existingBmsmBar.querySelector(".au003-bmsm__text").textContent = text;
+    const badgeEl = existingBmsmBar.querySelector(".au003-bmsm__badge");
+    badgeEl.textContent = badge;
+    badgeEl.style.display = badge ? "" : "none";
+    existingBmsmBar.querySelector(".au003-bmsm__fill").style.width = `${fillPct}%`;
+    existingBmsmBar.querySelectorAll(".au003-bmsm__dot").forEach((dot, i) => {
+      dot.className = dotClass(i + 1);
+    });
+  } else {
+    const cartBlock = targetNode.querySelector(".unicorn_cart_block");
+    if (!cartBlock) return true;
+    const bmsmBar = document.createElement("div");
+    bmsmBar.id = BMSM_BAR_ID;
+    bmsmBar.innerHTML = `
+			<div class="au003-bmsm__header">
+				<p class="au003-bmsm__text">${text}</p>
+				<span class="au003-bmsm__badge" style="${badge ? "" : "display:none"}">${badge}</span>
+			</div>
+			<div class="au003-bmsm__track">
+				<div class="au003-bmsm__fill" style="width:${fillPct}%"></div>
+				<span class="${dotClass(1)}"></span>
+				<span class="${dotClass(2)}"></span>
+				<span class="${dotClass(3)}"></span>
+			</div>
+			<div class="au003-bmsm__labels">
+				<span>1</span>
+				<span>2</span>
+				<span>3 \xB7 10%</span>
+			</div>
+		`;
+    cartBlock.after(bmsmBar);
+  }
+  return true;
+};
+var parseAmount = (text) => {
+  const match = text.match(/[\$€£]([\d,.]+)/);
+  return match ? parseFloat(match[1].replace(",", "")) : 0;
+};
+var observeUnicornCart = (targetNode) => {
+  applyCartChanges(targetNode);
+  const config = { attributes: true, childList: true, subtree: true };
+  const observer = new MutationObserver(() => {
+    observer.disconnect();
+    let intervalId;
+    const reconnect = () => {
+      clearInterval(intervalId);
+      observer.observe(targetNode, config);
+    };
+    intervalId = setInterval(() => {
+      if (applyCartChanges(targetNode)) reconnect();
+    }, 300);
+    setTimeout(reconnect, 3e3);
+  });
+  observer.observe(targetNode, config);
+};
+
+var tagInterval = setInterval(() => {
+  if (typeof window?.clarity === "function") {
+    window.clarity("set", "test-AU003", "variation-1");
+    clearInterval(tagInterval);
+  }
+}, 300);
+var result = await waitForAll(
+  waitForSelectors(["#variant-selects-template--20532675346477__a_main_product_xHy6Mr", "#unicorn-cart-block"], {
+    forceArray: true
+  })
+);
+var [[variantSelects], [unicornCartBlock]] = result.elements;
+init(variantSelects);
+observeUnicornCart(unicornCartBlock);
+
+  } catch (error) {
+    const stack = error.stack || '';
+    const lineMatch = stack.match(/:([0-9]+):([0-9]+)/);
+    const location = lineMatch ? `Line ${lineMatch[1]}, Column ${lineMatch[2]}` : 'Unknown location';
+
+    console.error(`\u274C Opti test error | Test ID: SR_AU003 |`);
+    console.error(`\u{1F4CD} Location: ${location}`);
+    console.error(`\u{1F50D} Stack trace:`, error.stack);
+  }
+})();
+					document.body.insertAdjacentHTML('afterbegin', `
+<style>
+.sr_au003 #rbr-container-element-volume {
+  display: none;
+}
+.sr_au003 .au003_pdp_bar {
+  border: 1px solid #39814f;
+  background-color: #e5f3ed;
+  border-radius: 40px;
+  color: #39814f;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 4px;
+  margin-bottom: 16px;
+}
+.sr_au003 .au003_pdp_bar p {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 700;
+}
+.sr_au003 .au-002-price {
+  display: flex;
+  gap: 8px;
+}
+.sr_au003 .au-002-price__strikethrough-price {
+  color: #636363;
+  text-decoration: line-through;
+}
+.sr_au003 .au-002-price__discountPct-label {
+  color: #fff;
+  font-size: 12px;
+  background-color: #f60113;
+  border-radius: 8px;
+  padding: 4px;
+  height: fit-content;
+  align-self: center;
+}
+.sr_au003 .items_prices__kPZpv {
+  flex-direction: column;
+}
+.sr_au003 .items_prices__kPZpv span:nth-child(2) {
+  display: none;
+}
+.sr_au003 .items_prices__kPZpv .au-002-cart-price__strikethrough {
+  text-decoration: line-through;
+}
+.sr_au003 .items_prices__kPZpv .items_discount_tag__eVCmt {
+  color: #fff;
+  font-size: 12px;
+  background-color: #f60113;
+  border-radius: 8px;
+  padding: 4px;
+  font-weight: 600;
+}
+.sr_au003 .unicorn_cart_cell_extras {
+  display: none;
+}
+.sr_au003 #unicorn-cart-block:has(.cart_empty_cart__HsJwx) #au003-bmsm-bar {
+  display: none !important;
+}
+.sr_au003 #au-002-cart-breakdown {
+  width: 100%;
+  padding: 12px 0;
+  border-bottom: 1px solid #e5e5e5;
+  margin-bottom: 8px;
+}
+.sr_au003 .au-002-bd__row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+  font-size: 14px;
+}
+.sr_au003 .au-002-bd__row--discount {
+  color: #27ae60;
+}
+.sr_au003 .au-002-bd__row--total {
+  font-weight: 700;
+  font-size: 15px;
+  border-top: 1px solid #e5e5e5;
+  margin-top: 6px;
+  padding-top: 10px;
+}
+.sr_au003 #au003-bmsm-bar {
+  padding: 12px 16px;
+  background: #f7f7f7;
+  width: calc(100% - 32px);
+  margin: 0 auto;
+}
+.sr_au003 #au003-bmsm-bar:has(.au003-bmsm__fill[style="width: 50%;"]) .au003-bmsm__labels span:nth-child(1),
+.sr_au003 #au003-bmsm-bar:has(.au003-bmsm__fill[style="width: 50%;"]) .au003-bmsm__labels span:nth-child(2) {
+  color: #39814f;
+}
+.sr_au003 #au003-bmsm-bar:has(.au003-bmsm__fill[style="width: 100%;"]) .au003-bmsm__labels span:nth-child(1),
+.sr_au003 #au003-bmsm-bar:has(.au003-bmsm__fill[style="width: 100%;"]) .au003-bmsm__labels span:nth-child(2),
+.sr_au003 #au003-bmsm-bar:has(.au003-bmsm__fill[style="width: 100%;"]) .au003-bmsm__labels span:nth-child(3) {
+  color: #39814f;
+}
+.sr_au003 .au003-bmsm__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  gap: 8px;
+}
+.sr_au003 .au003-bmsm__text {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: #39814f;
+}
+.sr_au003 .au003-bmsm__badge {
+  background: #39814f;
+  color: #fff;
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.sr_au003 .au003-bmsm__track {
+  position: relative;
+  height: 4px;
+  background: #e0e0e0;
+  border-radius: 2px;
+  margin: 10px 0 6px;
+}
+.sr_au003 .au003-bmsm__fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  background: #39814f;
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+.sr_au003 .au003-bmsm__dot {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #e0e0e0;
+}
+.sr_au003 .au003-bmsm__dot:nth-child(2) {
+  left: 0%;
+}
+.sr_au003 .au003-bmsm__dot:nth-child(3) {
+  left: 50%;
+}
+.sr_au003 .au003-bmsm__dot:nth-child(4) {
+  left: 100%;
+}
+.sr_au003 .au003-bmsm__dot--passed {
+  background: #39814f;
+}
+.sr_au003 .au003-bmsm__dot--active {
+  width: 14px;
+  height: 14px;
+  background: #39814f;
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 2px #39814f;
+}
+.sr_au003 .au003-bmsm__labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: #636363;
+  margin-top: 4px;
+}
+.sr_au003 .au003-bmsm__labels span:nth-child(2) {
+  margin-left: 16px;
+}
+.sr_au003 #unicorn_checkout_submit .unicorn_cart_checkout_button_text {
+  font-size: 0;
+}
+.sr_au003 #unicorn_checkout_submit .unicorn_cart_checkout_button_text::after {
+  content: "Checkout";
+  font-size: 16px;
+}
+</style>`);
+				

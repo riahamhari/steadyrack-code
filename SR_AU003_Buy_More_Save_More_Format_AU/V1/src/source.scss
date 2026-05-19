@@ -1,0 +1,235 @@
+@use 'base' as *;
+@use 'fonts' as *;
+
+// @import '@tui/ui-library/scss/variables.scss';
+// @import '@tui/ui-library/scss/mixins.scss';
+// @import '@tui/ui-library/scss/themes/tui-light/index.scss';
+.sr_au003 {
+	#rbr-container-element-volume {
+		display: none;
+	}
+
+	.au003_pdp_bar {
+		border: 1px solid #39814f;
+		background-color: #e5f3ed;
+		border-radius: 40px;
+		color: #39814f;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		padding: 4px;
+		margin-bottom: 16px;
+
+		p {
+			margin: 0;
+			display: flex;
+			align-items: center;
+			gap: 4px;
+			font-weight: 700;
+		}
+	}
+
+	.au-002-price {
+		display: flex;
+		gap: 8px;
+		&__strikethrough-price {
+			color: #636363;
+			text-decoration: line-through;
+		}
+		&__discountPct-label {
+			color: #fff;
+			font-size: 12px;
+			background-color: #f60113;
+			border-radius: 8px;
+			padding: 4px;
+			height: fit-content;
+			align-self: center;
+		}
+	}
+
+	.items_prices__kPZpv {
+		flex-direction: column;
+		// span:nth-child(1),
+		span:nth-child(2) {
+			display: none;
+		}
+		.au-002-cart-price__strikethrough {
+			text-decoration: line-through;
+		}
+		.items_discount_tag__eVCmt {
+			color: #fff;
+			font-size: 12px;
+			background-color: #f60113;
+			border-radius: 8px;
+			padding: 4px;
+			font-weight: 600;
+		}
+	}
+	// .unicorn_cart_cell {
+	// 	.unicorn_discount_tag {
+	// 		display: none;
+	// 	}
+	// }
+
+	.unicorn_cart_cell_extras {
+		display: none;
+	}
+
+	#unicorn-cart-block:has(.cart_empty_cart__HsJwx) {
+		#au003-bmsm-bar {
+			display: none !important;
+		}
+	}
+
+	#au-002-cart-breakdown {
+		width: 100%;
+		padding: 12px 0;
+		border-bottom: 1px solid #e5e5e5;
+		margin-bottom: 8px;
+	}
+
+	.au-002-bd__row {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding: 4px 0;
+		font-size: 14px;
+
+		&--discount {
+			color: #27ae60;
+		}
+
+		&--total {
+			font-weight: 700;
+			font-size: 15px;
+			border-top: 1px solid #e5e5e5;
+			margin-top: 6px;
+			padding-top: 10px;
+		}
+	}
+
+	#au003-bmsm-bar {
+		padding: 12px 16px;
+		background: #f7f7f7;
+		width: calc(100% - 32px);
+		margin: 0 auto;
+
+		&:has(.au003-bmsm__fill[style='width: 50%;']) {
+			.au003-bmsm__labels {
+				span:nth-child(1),
+				span:nth-child(2) {
+					color: #39814f;
+				}
+			}
+		}
+		&:has(.au003-bmsm__fill[style='width: 100%;']) {
+			.au003-bmsm__labels {
+				span:nth-child(1),
+				span:nth-child(2),
+				span:nth-child(3) {
+					color: #39814f;
+				}
+			}
+		}
+	}
+
+	.au003-bmsm {
+		&__header {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			margin-bottom: 12px;
+			gap: 8px;
+		}
+
+		&__text {
+			margin: 0;
+			font-size: 13px;
+			font-weight: 600;
+			color: #39814f;
+		}
+
+		&__badge {
+			background: #39814f;
+			color: #fff;
+			border-radius: 6px;
+			padding: 4px 10px;
+			font-size: 12px;
+			font-weight: 600;
+			white-space: nowrap;
+			flex-shrink: 0;
+		}
+
+		&__track {
+			position: relative;
+			height: 4px;
+			background: #e0e0e0;
+			border-radius: 2px;
+			margin: 10px 0 6px;
+		}
+
+		&__fill {
+			position: absolute;
+			left: 0;
+			top: 0;
+			height: 100%;
+			background: #39814f;
+			border-radius: 2px;
+			transition: width 0.3s ease;
+		}
+
+		&__dot {
+			position: absolute;
+			top: 50%;
+			transform: translate(-50%, -50%);
+			width: 10px;
+			height: 10px;
+			border-radius: 50%;
+			background: #e0e0e0;
+
+			&:nth-child(2) {
+				left: 0%;
+			}
+			&:nth-child(3) {
+				left: 50%;
+			}
+			&:nth-child(4) {
+				left: 100%;
+			}
+
+			&--passed {
+				background: #39814f;
+			}
+
+			&--active {
+				width: 14px;
+				height: 14px;
+				background: #39814f;
+				border: 2px solid #fff;
+				box-shadow: 0 0 0 2px #39814f;
+			}
+		}
+
+		&__labels {
+			display: flex;
+			justify-content: space-between;
+			font-size: 11px;
+			color: #636363;
+			margin-top: 4px;
+
+			span:nth-child(2) {
+				margin-left: 16px;
+			}
+		}
+	}
+
+	#unicorn_checkout_submit {
+		.unicorn_cart_checkout_button_text {
+			font-size: 0;
+			&::after {
+				content: 'Checkout';
+				font-size: 16px;
+			}
+		}
+	}
+}
